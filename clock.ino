@@ -2,9 +2,9 @@
 #include "PietteTech_DHT.h" // https://github.com/piettetech/PietteTech_DHT
 #include <MD_MAX72xx.h>     // https://github.com/MajicDesigns/MD_MAX72XX
 #include <SPI.h>
-#include <NTPClient.h>
+#include <NTPClient.h>      // https://github.com/arduino-libraries/NTPClient
 #include <ESP8266WiFi.h>
-#include <WiFiUdp.h>        // https://github.com/arduino-libraries/NTPClient
+#include <WiFiUdp.h>        
 #define DHTPIN 0
 #define DHTTYPE DHT11
 const char *ssid     = "Klapse";
@@ -67,7 +67,7 @@ uint8_t frame;              // current animation frame
 uint8_t deltaFrame;         // the animation frame offset for the next frame
 //Pacman-Animation End
 
-char *old; // old Time
+char old[9]; // old Time
 
 void pacman_clean() { // TODO
 
@@ -224,8 +224,8 @@ void clock()
   j = (mx.getColumnCount() / 2 - tmp_charWidth) / 2; // calculate start position for placing time in the middle of the Matrix-Display
   p = charBuf;
   if (old == NULL || p[4] != old[4]) {
-    mx.clear();
-    while (*p != '\0')
+    //mx.clear();
+    /*while (*p != '\0')
     {
       charWidth = mx.getChar(*p++, sizeof(cBuf) / sizeof(cBuf[0]), cBuf);
 
@@ -235,8 +235,9 @@ void clock()
           mx.setColumn(4 * COL_SIZE - 1 - j, cBuf[i]);
         j++;
       }
-    }
-    strcpy(old, p);
+    }*/
+    Text_mid(p);
+    strcpy(old, charBuf);
   }
 //}
   delay(500);
@@ -263,16 +264,18 @@ void setup()
   delay(1000);
 #endif
   PRINTS("\n[MD_MAX72XX Test & Demo]");
-//  scrollText("MD_MAX72xx Test  ");
+  mx.clear();
+  Text("MD_MAX72xx Test  ");
+  //delay ( 5000 );
   WiFi.begin(ssid, password);
-
+  
   while ( WiFi.status() != WL_CONNECTED ) {
     delay ( 500 );
     Serial.print ( ".WIFI." );
   }
 
   timeClient.begin();
-  timeClient.update();
+  //timeClient.update();
   mx.control(MD_MAX72XX::INTENSITY, 5);
   mx.clear();
   strcpy(old, "abcdefgh"); // writing dummy as old time

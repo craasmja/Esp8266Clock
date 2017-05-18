@@ -109,12 +109,7 @@ void pacman_clean() { // TODO
 }
 
 
-
-
-
-
-
-void dht_wrapper() { // needed by NTP-libary
+void dht_wrapper() { // needed by DHT-libary
   DHT.isrCallback();
 }
 
@@ -141,11 +136,25 @@ void scrollText(char *p)
 
 void Text(char *p)
 {
+  Text(p, false);
+}
+void Text(char *p, bool mid)
+{
   uint8_t charWidth;
   uint8_t cBuf[8];
-
-  mx.clear();
   uint8_t j = 0;
+  mx.clear();
+  if(mid){
+    char* tmp = p;
+    int tmp_charWidth = 0;
+    while (*p != '\0')
+    {
+      tmp_charWidth += mx.getChar(*p++, sizeof(cBuf) / sizeof(cBuf[0]), cBuf);
+    }
+    j = (mx.getColumnCount() / 2 - tmp_charWidth) / 2; // calculate start position for placing time in the middle of the Matrix-Display
+    p = tmp;  
+  }
+
   while (*p != '\0')
   {
     charWidth = mx.getChar(*p++, sizeof(cBuf) / sizeof(cBuf[0]), cBuf);
@@ -163,41 +172,19 @@ void Text(String text)
 {
   char charBuf[50];
   text.toCharArray(charBuf, 50);
-  Text(charBuf);
+  Text(charBuf, false);
 }
 
 void Text_mid(char *p)
 {
-  uint8_t charWidth;
-  uint8_t cBuf[8];
-  char* tmp = p;
-  mx.clear();
-  uint8_t j = 0;
-    int tmp_charWidth = 0;
-  while (*p != '\0')
-  {
-    tmp_charWidth += mx.getChar(*p++, sizeof(cBuf) / sizeof(cBuf[0]), cBuf);
-  }
-  j = (mx.getColumnCount() / 2 - tmp_charWidth) / 2; // calculate start position for placing time in the middle of the Matrix-Display
-  p = tmp;
-  while (*p != '\0')
-  {
-    charWidth = mx.getChar(*p++, sizeof(cBuf) / sizeof(cBuf[0]), cBuf);
-
-    for (uint8_t i = 0; i < charWidth + 1; i++) // allow space between characters
-    {
-      if (i < charWidth)
-        mx.setColumn(4 * COL_SIZE - 1 - j, cBuf[i]);
-      j++;
-    }
-  }
+  Text(p, true);
 }
 
 void Text_mid(String text)
 {
   char charBuf[50];
   text.toCharArray(charBuf, 50);
-  Text_mid(charBuf);
+  Text(charBuf, true);
 }
 
 
@@ -264,9 +251,6 @@ void setup()
   delay(1000);
 #endif
   PRINTS("\n[MD_MAX72XX Test & Demo]");
-  mx.clear();
-  Text("MD_MAX72xx Test  ");
-  //delay ( 5000 );
   WiFi.begin(ssid, password);
   
   while ( WiFi.status() != WL_CONNECTED ) {
@@ -275,7 +259,6 @@ void setup()
   }
 
   timeClient.begin();
-  //timeClient.update();
   mx.control(MD_MAX72XX::INTENSITY, 5);
   mx.clear();
   strcpy(old, "abcdefgh"); // writing dummy as old time

@@ -7,8 +7,8 @@
 #include <WiFiUdp.h>        
 #define DHTPIN 0
 #define DHTTYPE DHT11
-const char *ssid     = "Klapse";
-const char *password = "8595042523671671";
+const char *ssid     = "ssid";
+const char *password = "your password";
 void dht_wrapper(); // must be declared before the lib initialization
 
 // Lib instantiate
